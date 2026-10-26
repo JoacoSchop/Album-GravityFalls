@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import Cartas from "./componentes/figuritas.tsx";
+
 
 export default function Inicio() {
   const [personajes, setPersonajes] = useState([]);
@@ -30,10 +32,7 @@ export default function Inicio() {
             {cargando 
                 ? <p>Cargando personajes</p> 
                 : personajes.map((personaje) => (
-                <div className="bg-orange-100 rounded-2xl aspect-3/4 h-60 p-2 border  flex flex-col justify-center gap-2">
-                    <img src={personaje.imageUrl} alt="foto" className="aspect-square w-full bg-cover" />
-                    <p>{personaje.name}</p>
-                </div>
+                <Cartas key={personaje._id} nombre={personaje.name} imagen={personaje.imageUrl} />
             ))}
             
             
