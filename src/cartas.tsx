@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import Cartas from "./componentes/figuritas.tsx";
+import Header from "./componentes/header";
 
-export default function Cartas() {
+export default function Inicio() {
   const [personajes, setPersonajes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +28,8 @@ export default function Cartas() {
 
   return (
     <main className="min-w-screen min-h-screen bg-amber-700 p-10 px-20">
-      <section className="bg-white rounded-2xl w-full min-h-90 p-10 grid xl:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-1 gap-10 justify-items-center">
+      <Header />
+      <section className="bg-white rounded-2xl mt-15 w-full min-h-90 p-10 grid grid-cols-4 gap-10">
         {cargando ? (
           <p>Cargando personajes</p>
         ) : (
