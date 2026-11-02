@@ -21,8 +21,23 @@ export type Carta = {
 
 function App() {
   const [personajes, setPersonajes] = useState<Personaje[]>([]);
-  const [inventario, setInventario] = useState<Carta[]>([]);
+  const [inventario, setInventario] = useState<Carta[]>(() => {
+    try {
+      const guardado = localStorage.getItem("inventario");
+      return guardado ? JSON.parse(guardado) : [];
+    } catch {
+      return [];
+    }
+  });
   const [paquetes, setPaquetes] = useState(3);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("inventario", JSON.stringify(inventario));
+    } catch (err) {
+      console.error("No se pudo guardar el inventario:", err);
+    }
+  }, [inventario]);
 
   useEffect(() => {
     const URL =
