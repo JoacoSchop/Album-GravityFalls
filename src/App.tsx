@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Cartas from "./cartas.tsx";
 import Home from "./home.tsx";
-import Inicio from "./inicio.tsx";
 import Paquetes from "./paquetes.tsx";
 import Inventario from "./inventario.tsx";
 
@@ -61,8 +60,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/cartas" element={<Cartas />} />
-        <Route path="/inicio" element={<Inicio />} />
+        <Route path="/cartas" element={<Cartas personajes={personajes} />} />
         <Route
           path="/paquetes"
           element={

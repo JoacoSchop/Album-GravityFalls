@@ -22,7 +22,8 @@ export default function Inventario({ inventario }: InventarioProps) {
     .map((carta) => ({
       carta,
       cantidad: inventario.filter((otra) => otra.personajeId === carta.personajeId).length,
-    }));
+    }))
+    .sort((a, b) => b.cantidad - a.cantidad);
 
   const visibles =
     filtro === "repetidas" ? grupos.filter((grupo) => grupo.cantidad > 1) : grupos;
