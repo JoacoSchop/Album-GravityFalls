@@ -4,6 +4,7 @@ import Cartas from "./cartas.tsx";
 import Home from "./home.tsx";
 import Paquetes from "./paquetes.tsx";
 import Inventario from "./inventario.tsx";
+import Ruleta from "./ruleta.tsx";
 
 export type Personaje = {
   _id: number;
@@ -28,7 +29,43 @@ function App() {
       return [];
     }
   });
-  const [paquetes, setPaquetes] = useState(3);
+  const [ultimaApertura, setUltimaApertura] = useState<number | null>(() => {
+    try {
+      const guardado = localStorage.getItem("ultimaApertura");
+      return guardado ? Number(guardado) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [ultimaTirada, setUltimaTirada] = useState<number | null>(() => {
+    try {
+      const guardado = localStorage.getItem("ultimaTirada");
+      return guardado ? Number(guardado) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (ultimaTirada !== null) {
+        localStorage.setItem("ultimaTirada", String(ultimaTirada));
+      }
+    } catch (err) {
+      console.error("No se pudo guardar la última tirada:", err);
+    }
+  }, [ultimaTirada]);
+
+  useEffect(() => {
+    try {
+      if (ultimaApertura !== null) {
+        localStorage.setItem("ultimaApertura", String(ultimaApertura));
+      }
+    } catch (err) {
+      console.error("No se pudo guardar la última apertura:", err);
+    }
+  }, [ultimaApertura]);
 
   useEffect(() => {
     try {
@@ -53,7 +90,11 @@ function App() {
 
   function agregarCartas(nuevas: Carta[]) {
     setInventario((actual) => [...actual, ...nuevas]);
-    setPaquetes((actual) => actual - 1);
+  }
+
+  function abrirPaquete(nuevas: Carta[]) {
+    agregarCartas(nuevas);
+    setUltimaApertura(Date.now());
   }
 
   return (
@@ -66,8 +107,19 @@ function App() {
           element={
             <Paquetes
               personajes={personajes}
-              paquetes={paquetes}
-              onAbrir={agregarCartas}
+              ultimaApertura={ultimaApertura}
+              onAbrir={abrirPaquete}
+            />
+          }
+        />
+        <Route
+          path="/paquetes/ruleta"
+          element={
+            <Ruleta
+              personajes={personajes}
+              ultimaTirada={ultimaTirada}
+              onTirar={() => setUltimaTirada(Date.now())}
+              onGanar={agregarCartas}
             />
           }
         />

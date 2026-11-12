@@ -1,35 +1,30 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Cartas from "./componentes/figuritas.tsx";
 import Header from "./componentes/header";
 import Contenedor from "./componentes/contenedor.tsx";
 import type { Carta, Personaje } from "./App.tsx";
+import { formatearTiempo, generarPaquete, tiempoRestante, useAhora } from "./utils.ts";
 
 type PaquetesProps = {
   personajes: Personaje[];
-  paquetes: number;
+  ultimaApertura: number | null;
   onAbrir: (cartas: Carta[]) => void;
 };
 
-const CARTAS_POR_PAQUETE = 5;
-
-export default function Paquetes({ personajes, paquetes, onAbrir }: PaquetesProps) {
+export default function Paquetes({ personajes, ultimaApertura, onAbrir }: PaquetesProps) {
   const [ultimas, setUltimas] = useState<Carta[]>([]);
+  const ahora = useAhora();
+
+  const restante = tiempoRestante(ultimaApertura, ahora);
+  const disponible = restante === 0;
 
   function abrirPaquete() {
-    const nuevas = Array.from({ length: CARTAS_POR_PAQUETE }, () => {
-      const personaje = personajes[Math.floor(Math.random() * personajes.length)];
-      return {
-        id: crypto.randomUUID(),
-        personajeId: personaje._id,
-        nombre: personaje.name,
-        imagen: personaje.imageUrl,
-      };
-    });
+    if (!disponible) return;
+    const nuevas = generarPaquete(personajes);
     setUltimas(nuevas);
     onAbrir(nuevas);
   }
-
-  const sinPaquetes = paquetes === 0;
 
   return (
     <main className="min-w-screen min-h-screen bg-amber-700 p-10 px-20">
@@ -37,24 +32,26 @@ export default function Paquetes({ personajes, paquetes, onAbrir }: PaquetesProp
       <Contenedor titulo="Paquetes">
         <div className="flex items-center gap-6 mb-8">
           <p className="text-xl font-bold">
-            Paquetes disponibles: {paquetes}
+            {disponible
+              ? "Tenés 1 paquete disponible"
+              : `Próximo paquete en ${formatearTiempo(restante)}`}
           </p>
           <button
             onClick={abrirPaquete}
-            disabled={sinPaquetes || personajes.length === 0}
+            disabled={!disponible || personajes.length === 0}
             className="bg-amber-900 text-amber-100 font-bold text-xl px-6 py-2 rounded-full cursor-pointer hover:bg-amber-800 active:bg-amber-950 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Abrir paquete
           </button>
+          <Link
+            to="/paquetes/ruleta"
+            className="bg-gray-200 text-xl px-6 py-2 rounded-full hover:bg-gray-300"
+          >
+            Probar suerte en la ruleta
+          </Link>
         </div>
 
         {personajes.length === 0 && <p>Cargando personajes</p>}
-
-        {sinPaquetes && (
-          <p className="text-red-600 font-bold mb-6">
-            No te quedan paquetes para abrir
-          </p>
-        )}
 
         {ultimas.length > 0 && (
           <>

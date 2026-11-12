@@ -7,7 +7,7 @@ export default function Header() {
     return (
          <header className="w-90/100 fixed top-5 left-1/2 -translate-x-1/2 bg-gray-100/90 border-b shadow-lg border-zinc-500 z-10 backdrop-blur-md h-15 rounded-full flex justify-between items-center px-10">
           <div className="flex items-center justify-center gap-2">
-            <img src={"mano.jpg"} alt="logo" className="aspect-square h-13" />
+            <img src={"/mano.jpg"} alt="logo" className="aspect-square h-13" />
             <NavLink to={"/"} className="font-bold text-2xl">Gravity Falls</NavLink>
           </div>
           <div className="flex items-center gap-3">
