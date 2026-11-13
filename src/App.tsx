@@ -5,12 +5,16 @@ import Home from "./home.tsx";
 import Paquetes from "./paquetes.tsx";
 import Inventario from "./inventario.tsx";
 import Ruleta from "./ruleta.tsx";
+import Codigo from "./codigo.tsx";
 
 export type Personaje = {
   _id: number;
   name: string;
   imageUrl: string;
+  numeroAlbum: number;
 };
+
+export type EstadoCatalogo = "cargando" | "listo" | "error";
 
 export type Carta = {
   id: string;
@@ -21,6 +25,7 @@ export type Carta = {
 
 function App() {
   const [personajes, setPersonajes] = useState<Personaje[]>([]);
+  const [estadoCatalogo, setEstadoCatalogo] = useState<EstadoCatalogo>("cargando");
   const [inventario, setInventario] = useState<Carta[]>(() => {
     try {
       const guardado = localStorage.getItem("inventario");
@@ -78,14 +83,33 @@ function App() {
   useEffect(() => {
     const URL =
       "https://api.disneyapi.dev/character?tvShows=Gravity%20Falls&page=1&pageSize=104";
+    const solicitud = new AbortController();
 
-    fetch(URL)
-      .then((res) => res.json())
-      .then((data) => {
-        const lista: Personaje[] = data.data || [];
-        setPersonajes(lista.filter((personaje) => personaje.imageUrl));
+    fetch(URL, { signal: solicitud.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Disney API: ${res.status}`);
+        return res.json();
       })
-      .catch((err) => console.error("Fallo al cargar personajes:", err));
+      .then((data) => {
+        const lista: Omit<Personaje, "numeroAlbum">[] = data.data || [];
+        const conImagen = lista.filter((personaje) => personaje.imageUrl);
+        const unicos = new Map(conImagen.map((personaje) => [personaje._id, personaje]));
+        // El orden de la API puede variar. Numeramos a partir del ID de origen.
+        const catalogo = [...unicos.values()]
+          .sort((a, b) => a._id - b._id)
+          .map((personaje, indice) => ({ ...personaje, numeroAlbum: indice + 1 }));
+
+        if (solicitud.signal.aborted) return;
+        setPersonajes(catalogo);
+        setEstadoCatalogo("listo");
+      })
+      .catch((err) => {
+        if (solicitud.signal.aborted) return;
+        setEstadoCatalogo("error");
+        console.error("Fallo al cargar personajes:", err);
+      });
+
+    return () => solicitud.abort();
   }, []);
 
   function agregarCartas(nuevas: Carta[]) {
@@ -100,7 +124,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <Home personajes={personajes} inventario={inventario} estadoCatalogo={estadoCatalogo} />
+          }
+        />
         <Route path="/cartas" element={<Cartas personajes={personajes} />} />
         <Route
           path="/paquetes"
@@ -119,6 +148,15 @@ function App() {
               personajes={personajes}
               ultimaTirada={ultimaTirada}
               onTirar={() => setUltimaTirada(Date.now())}
+              onGanar={agregarCartas}
+            />
+          }
+        />
+        <Route
+          path="/paquetes/codigo"
+          element={
+            <Codigo
+              personajes={personajes}
               onGanar={agregarCartas}
             />
           }

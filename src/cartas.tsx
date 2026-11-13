@@ -15,7 +15,11 @@ export default function CartasPage({ personajes }: CartasProps) {
               key={personaje._id}
               nombre={personaje.name}
               imagen={personaje.imageUrl}
-            />
+            >
+              <span className="absolute left-2 top-2 rounded bg-amber-950 px-2 py-1 font-mono text-sm font-bold text-amber-50">
+                {String(personaje.numeroAlbum).padStart(3, "0")}
+              </span>
+            </Cartas>
           ))}
       </section>
     </main>

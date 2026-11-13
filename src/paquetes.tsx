@@ -15,12 +15,11 @@ type PaquetesProps = {
 export default function Paquetes({ personajes, ultimaApertura, onAbrir }: PaquetesProps) {
   const [ultimas, setUltimas] = useState<Carta[]>([]);
   const ahora = useAhora();
-
   const restante = tiempoRestante(ultimaApertura, ahora);
   const disponible = restante === 0;
 
   function abrirPaquete() {
-    if (!disponible) return;
+    if (!disponible || personajes.length === 0) return;
     const nuevas = generarPaquete(personajes);
     setUltimas(nuevas);
     onAbrir(nuevas);
@@ -30,11 +29,9 @@ export default function Paquetes({ personajes, ultimaApertura, onAbrir }: Paquet
     <main className="min-w-screen min-h-screen bg-amber-700 p-10 px-20">
       <Header />
       <Contenedor titulo="Paquetes">
-        <div className="flex items-center gap-6 mb-8">
+        <div className="flex flex-wrap items-center gap-4 mb-8">
           <p className="text-xl font-bold">
-            {disponible
-              ? "Tenés 1 paquete disponible"
-              : `Próximo paquete en ${formatearTiempo(restante)}`}
+            {disponible ? "Tenés 1 paquete disponible" : `Próximo paquete en ${formatearTiempo(restante)}`}
           </p>
           <button
             onClick={abrirPaquete}
@@ -48,6 +45,12 @@ export default function Paquetes({ personajes, ultimaApertura, onAbrir }: Paquet
             className="bg-gray-200 text-xl px-6 py-2 rounded-full hover:bg-gray-300"
           >
             Probar suerte en la ruleta
+          </Link>
+          <Link
+            to="/paquetes/codigo"
+            className="bg-amber-200 text-amber-950 text-xl px-6 py-2 rounded-full hover:bg-amber-300"
+          >
+            Descifrar un código
           </Link>
         </div>
 
@@ -63,6 +66,7 @@ export default function Paquetes({ personajes, ultimaApertura, onAbrir }: Paquet
             </div>
           </>
         )}
+
       </Contenedor>
     </main>
   );
